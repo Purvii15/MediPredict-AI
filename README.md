@@ -6,17 +6,19 @@
 
 ## Screenshots
 
-### Home Page
-![Home](screenshots/home.png)
-
 ### Symptom Selection
 ![Predict](screenshots/predict.png)
 
 ### Prediction Results
 ![Results](screenshots/results.png)
 
-### Analytics Dashboard
-![Analytics](screenshots/analytics.png)
+![Results continued](screenshots/results2.png)
+
+### Analytics — Feature Importance
+![Feature Importance](screenshots/analytics_features.png)
+
+### Analytics — EDA Charts
+![EDA Charts](screenshots/analytics_eda.png)
 
 ---
 
