@@ -156,7 +156,7 @@ body { font-family: Inter, Segoe UI, Tahoma, sans-serif; background: #f0f4f8; co
 .sev-high { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; }
 .conf-badge { border-radius: 20px; padding: .25rem .9rem; font-size: .82rem; font-weight: 600; color: #fff; }
 .conf-high { background: linear-gradient(135deg, #38a169, #48bb78); }
-.conf-medium { background: linear-gradient(135deg, #d69e2e, #ecc94b); }
+.conf-medium { background: linear-gradient(135deg, #dd6b20, #ed8936); }
 .conf-low { background: linear-gradient(135deg, #e53e3e, #fc8181); }
 .pred-disease-row { margin-bottom: 1.25rem; }
 .pred-disease-name { font-size: 1.6rem; font-weight: 800; color: #0f2044; }
@@ -164,15 +164,15 @@ body { font-family: Inter, Segoe UI, Tahoma, sans-serif; background: #f0f4f8; co
 .pred-bar-row { display: flex; flex-direction: column; gap: .3rem; }
 .pred-bar-meta { display: flex; align-items: center; justify-content: space-between; }
 .pred-bar-label { font-size: .82rem; color: #718096; font-weight: 500; }
-.pred-bar-pct { font-size: .88rem; font-weight: 700; }
-.conf-high.pred-bar-pct { color: #38a169; }
-.conf-medium.pred-bar-pct { color: #d69e2e; }
-.conf-low.pred-bar-pct { color: #e53e3e; }
-.match-pct { color: #553c9a; }
+.pred-bar-pct { font-size: .9rem; font-weight: 800; color: #1a202c; background: #f0f4f8; padding: .15rem .6rem; border-radius: 20px; }
+.conf-high.pred-bar-pct { color: #276749; background: #c6f6d5; }
+.conf-medium.pred-bar-pct { color: #7b341e; background: #feebc8; }
+.conf-low.pred-bar-pct { color: #742a2a; background: #fed7d7; }
+.match-pct { color: #44337a; background: #e9d8fd; }
 .pred-bar-track { background: #e2e8f0; border-radius: 8px; height: 10px; overflow: hidden; }
 .pred-bar-fill { height: 100%; border-radius: 8px; transition: width .8s cubic-bezier(.4,0,.2,1); }
 .conf-high-bar { background: linear-gradient(90deg, #38a169, #68d391); }
-.conf-medium-bar { background: linear-gradient(90deg, #d69e2e, #f6e05e); }
+.conf-medium-bar { background: linear-gradient(90deg, #dd6b20, #ed8936); }
 .conf-low-bar { background: linear-gradient(90deg, #e53e3e, #fc8181); }
 .match-bar { background: linear-gradient(90deg, #553c9a, #9f7aea); }
 .pred-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
