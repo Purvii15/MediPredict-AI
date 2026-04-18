@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}About — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-badge">ℹ️ Project Info</div>
+      <h1>About This Project</h1>
+      <p class="page-sub">
+        An end-to-end machine learning web application covering the full data science pipeline —
+        from preprocessing and EDA to model training, evaluation, and deployment.
+      </p>
+    </div>
+  </div>
+
+  <!-- Tech stack pills -->
+  <div class="tech-stack">
+    <span class="tech-pill">🐍 Python 3.11</span>
+    <span class="tech-pill">🧮 Scikit-learn</span>
+    <span class="tech-pill">🐼 Pandas</span>
+    <span class="tech-pill">🔢 NumPy</span>
+    <span class="tech-pill">📊 Matplotlib</span>
+    <span class="tech-pill">🎨 Seaborn</span>
+    <span class="tech-pill">🌐 Flask</span>
+    <span class="tech-pill">🎨 HTML5 / CSS3</span>
+  </div>
+
+  <!-- Preprocessing steps -->
+  <div class="about-section">
+    <h2 class="about-section-title">🔧 Data Preprocessing Pipeline</h2>
+    <div class="pipeline-steps">
+      <div class="pipeline-step">
+        <div class="ps-num">1</div>
+        <div class="ps-body">
+          <div class="ps-title">Load Data</div>
+          <div class="ps-desc">Training: 4920 rows · Testing: 42 rows · 132 symptom features</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="ps-num">2</div>
+        <div class="ps-body">
+          <div class="ps-title">Clean Column Names</div>
+          <div class="ps-desc">Stripped whitespace from names like <code>spotting_ urination</code></div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="ps-num">3</div>
+        <div class="ps-body">
+          <div class="ps-title">Handle Missing Values</div>
+          <div class="ps-desc">No missing values found. NaN fallback fills with 0 (symptom absent)</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="ps-num">4</div>
+        <div class="ps-body">
+          <div class="ps-title">Remove Duplicates</div>
+          <div class="ps-desc">Removed 4616 duplicate rows → 304 unique training samples</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="ps-num">5</div>
+        <div class="ps-body">
+          <div class="ps-title">Label Encoding</div>
+          <div class="ps-desc">41 disease names mapped to integer labels 0–40</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="ps-num">6</div>
+        <div class="ps-body">
+          <div class="ps-title">Symptom Weighting</div>
+          <div class="ps-desc">Critical symptoms (weight 4–5) vs common symptoms (weight 1–2)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Models table -->
+  <div class="about-section">
+    <h2 class="about-section-title">🤖 Machine Learning Models</h2>
+    <div class="models-grid">
+      <div class="model-card">
+        <div class="mc-icon">🌳</div>
+        <div class="mc-name">Decision Tree</div>
+        <div class="mc-acc">95.1%</div>
+        <div class="mc-label">Validation Accuracy</div>
+        <div class="mc-desc">Fast and interpretable. Some overfitting on small dataset. Max depth 20.</div>
+      </div>
+      <div class="model-card model-card-best">
+        <div class="mc-best-badge">⭐ Best Model</div>
+        <div class="mc-icon">🌲</div>
+        <div class="mc-name">Random Forest</div>
+        <div class="mc-acc mc-acc-best">97.8%</div>
+        <div class="mc-label">Validation Accuracy</div>
+        <div class="mc-desc">200 trees, class-balanced, robust ensemble. Used for all predictions.</div>
+      </div>
+      <div class="model-card">
+        <div class="mc-icon">📐</div>
+        <div class="mc-name">Naive Bayes</div>
+        <div class="mc-acc">96.7%</div>
+        <div class="mc-label">Validation Accuracy</div>
+        <div class="mc-desc">Probabilistic model. Works well on weighted binary symptom features.</div>
+      </div>
+    </div>
+    <p class="about-note">
+      <em>Note:</em> Accuracies shown are from internal validation split (20% holdout from training data).
+      The test set is very small (42 samples), so validation metrics are more reliable for evaluation.
+    </p>
+  </div>
+
+  <!-- Feature importance -->
+  <div class="about-section">
+    <h2 class="about-section-title">🔬 Top 15 Feature Importances</h2>
+    <div class="imp-table-wrap">
+      <table class="imp-table">
+        <thead>
+          <tr><th>#</th><th>Symptom</th><th>Importance</th><th>Visual</th></tr>
+        </thead>
+        <tbody>
+          {% for sym, score in feature_imp %}
+          <tr>
+            <td><span class="rank-num">{{ loop.index }}</span></td>
+            <td>{{ sym.replace('_',' ').title() }}</td>
+            <td><strong>{{ score }}%</strong></td>
+            <td>
+              <div class="mini-bar-wrap">
+                <div class="mini-bar" style="width:{{ [score * 5, 100]|min }}%;"></div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Project structure -->
+  <div class="about-section">
+    <h2 class="about-section-title">📁 Project Structure</h2>
+    <pre class="code-block">
+├── app.py               Flask web app + REST API
+├── model.py             Train &amp; evaluate all models
+├── preprocessing.py     Data cleaning + EDA plots
+├── medical_rules.py     Symptom weights + safety gates
+├── dataset/             Training.csv, Testing.csv
+├── templates/           HTML pages (Jinja2)
+├── static/css/          Stylesheet
+└── static/images/       Auto-generated plots
+    </pre>
+  </div>
+
+  <div class="page-footer-actions">
+    <a href="{{ url_for('analytics') }}" class="btn btn-primary">View Analytics →</a>
+    <a href="{{ url_for('predict') }}" class="btn btn-outline">Try Prediction →</a>
+  </div>
+
+</div>
+{% endblock %}

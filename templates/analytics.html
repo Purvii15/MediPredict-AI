@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}Analytics — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-badge">📊 Data Science Dashboard</div>
+      <h1>Model Analytics</h1>
+      <p class="page-sub">Comprehensive model performance metrics, EDA visualizations, and feature importance analysis.</p>
+    </div>
+    <div class="analytics-model-strip">
+      <div class="ams-item">
+        <span class="ams-icon">🤖</span>
+        <div>
+          <div class="ams-val">{{ model_info.name }}</div>
+          <div class="ams-lbl">Best Model</div>
+        </div>
+      </div>
+      <div class="ams-item">
+        <span class="ams-icon">🎯</span>
+        <div>
+          <div class="ams-val ams-accent">{{ model_info.accuracy }}</div>
+          <div class="ams-lbl">Val. Accuracy</div>
+        </div>
+      </div>
+      <div class="ams-item">
+        <span class="ams-icon">🌲</span>
+        <div>
+          <div class="ams-val">{{ model_info.trees }}</div>
+          <div class="ams-lbl">Decision Trees</div>
+          <div style="font-size:.7rem;color:#718096;margin-top:.1rem;">in Random Forest</div>
+        </div>
+      </div>
+      <div class="ams-item">
+        <span class="ams-icon">🧬</span>
+        <div>
+          <div class="ams-val">{{ model_info.features }}</div>
+          <div class="ams-lbl">Features</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-banner">
+    <span class="ib-icon">📌</span>
+    <span>Validation accuracy shown (20% internal holdout split). Test set is small (42 samples), so validation metrics are more reliable for evaluation.</span>
+  </div>
+
+  <!-- Model Performance -->
+  <div class="analytics-section">
+    <div class="as-header">
+      <h2>🎯 Model Performance</h2>
+      <p>Comparison of three ML algorithms trained on weighted symptom features. Random Forest achieved the best validation accuracy and is used for all predictions.</p>
+    </div>
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="cc-header">
+          <h4>Accuracy Comparison</h4>
+          <span class="cc-tag">Validation Set</span>
+        </div>
+        <div class="cc-explain">
+          <strong>What it shows:</strong> Validation accuracy of all three models. Random Forest outperforms others due to ensemble learning and better handling of feature interactions.
+        </div>
+        <img src="{{ url_for('static', filename='images/accuracy_comparison.png') }}" alt="Accuracy Comparison"/>
+      </div>
+      <div class="chart-card">
+        <div class="cc-header">
+          <h4>Confusion Matrix</h4>
+          <span class="cc-tag">Random Forest · Top 15</span>
+        </div>
+        <div class="cc-explain">
+          <strong>What it shows:</strong> Prediction accuracy for top 15 diseases. Diagonal cells (darker blue) show correct predictions. Off-diagonal cells indicate misclassifications.
+        </div>
+        <img src="{{ url_for('static', filename='images/confusion_matrix.png') }}" alt="Confusion Matrix"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature Importance -->
+  <div class="analytics-section">
+    <div class="as-header">
+      <h2>🔬 Feature Importance</h2>
+      <p>Which symptoms have the strongest influence on disease predictions. Higher importance = more decisive in distinguishing between diseases.</p>
+    </div>
+    <div class="chart-card chart-card-wide">
+      <div class="cc-header">
+        <h4>Top 20 Symptoms by Importance</h4>
+        <span class="cc-tag">Random Forest</span>
+      </div>
+      <div class="cc-explain">
+        <strong>What it shows:</strong> The most influential symptoms in the model. Highly specific symptoms like "Nodal Skin Eruptions" and "Spotting Urination" are strong disease indicators.
+      </div>
+      <img src="{{ url_for('static', filename='images/feature_importance.png') }}" alt="Feature Importance"/>
+    </div>
+
+    <div class="imp-table-wrap" style="margin-top:1.5rem;">
+      <h3 style="margin-bottom:1rem; font-size:1.1rem; color:#2d3748;">Top 15 Symptoms — Ranked Table</h3>
+      <table class="imp-table">
+        <thead>
+          <tr><th>#</th><th>Symptom</th><th>Importance</th><th>Visual</th></tr>
+        </thead>
+        <tbody>
+          {% for sym, score in feature_imp %}
+          <tr>
+            <td><span class="rank-num">{{ loop.index }}</span></td>
+            <td>{{ sym.replace('_',' ').title() }}</td>
+            <td><strong>{{ score }}%</strong></td>
+            <td>
+              <div class="mini-bar-wrap">
+                <div class="mini-bar" style="width:{{ [score * 5, 100]|min }}%;"></div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EDA -->
+  <div class="analytics-section">
+    <div class="as-header">
+      <h2>📈 Exploratory Data Analysis</h2>
+      <p>Understanding the training dataset: disease distribution, symptom frequency, and class balance. These insights help identify potential biases and data quality issues.</p>
+    </div>
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="cc-header">
+          <h4>Disease Distribution</h4>
+          <span class="cc-tag">Top 15</span>
+        </div>
+        <div class="cc-explain">
+          <strong>What it shows:</strong> Number of training samples per disease. Balanced distribution ensures the model doesn't favor common diseases over rare ones.
+        </div>
+        <img src="{{ url_for('static', filename='images/disease_distribution.png') }}" alt="Disease Distribution"/>
+      </div>
+      <div class="chart-card">
+        <div class="cc-header">
+          <h4>Symptom Frequency</h4>
+          <span class="cc-tag">Top 20</span>
+        </div>
+        <div class="cc-explain">
+          <strong>What it shows:</strong> Most commonly occurring symptoms in the dataset. Vomiting, fatigue, and high fever appear across many diseases.
+        </div>
+        <img src="{{ url_for('static', filename='images/symptom_frequency.png') }}" alt="Symptom Frequency"/>
+      </div>
+      <div class="chart-card">
+        <div class="cc-header">
+          <h4>Disease Share</h4>
+          <span class="cc-tag">Donut · Top 10</span>
+        </div>
+        <div class="cc-explain">
+          <strong>What it shows:</strong> Percentage distribution of top 10 diseases in the training data. Helps visualize class proportions at a glance.
+        </div>
+        <img src="{{ url_for('static', filename='images/disease_pie.png') }}" alt="Disease Pie"/>
+      </div>
+      <div class="chart-card">
+        <div class="cc-header">
+          <h4>Class Balance</h4>
+          <span class="cc-tag">All 41 Diseases</span>
+        </div>
+        <div class="cc-explain">
+          <strong>What it shows:</strong> Sample count for all 41 diseases. Relatively balanced dataset with 5–10 samples per disease after duplicate removal.
+        </div>
+        <img src="{{ url_for('static', filename='images/class_balance.png') }}" alt="Class Balance"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preprocessing -->
+  <div class="analytics-section">
+    <div class="as-header">
+      <h2>🔧 Preprocessing — Correlation Analysis</h2>
+      <p>Correlation analysis reveals relationships between symptoms. Highly correlated symptoms often co-occur in the same diseases (e.g., fever and sweating).</p>
+    </div>
+    <div class="chart-card chart-card-wide">
+      <div class="cc-header">
+        <h4>Symptom Correlation Heatmap</h4>
+        <span class="cc-tag">Top 15 Features</span>
+      </div>
+      <div class="cc-explain">
+        <strong>What it shows:</strong> Correlation matrix showing how symptoms relate to each other. Darker colors indicate stronger positive correlation. Helps identify symptom clusters.
+      </div>
+      <img src="{{ url_for('static', filename='images/correlation_heatmap.png') }}" alt="Correlation"/>
+    </div>
+  </div>
+
+  <!-- Key Insights -->
+  <div class="insights-box">
+    <h3>📊 Key Insights</h3>
+    <div class="insights-grid">
+      <div class="insight-item">
+        <span class="insight-icon">🎯</span>
+        <div>
+          <div class="insight-val">97.8%</div>
+          <div class="insight-lbl">Random Forest validation accuracy using 200 decision trees</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <span class="insight-icon">🦠</span>
+        <div>
+          <div class="insight-val">41</div>
+          <div class="insight-lbl">Diseases covered in the prediction system</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <span class="insight-icon">🧬</span>
+        <div>
+          <div class="insight-val">132</div>
+          <div class="insight-lbl">Symptom features used for training</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <span class="insight-icon">⚖️</span>
+        <div>
+          <div class="insight-val">1–5×</div>
+          <div class="insight-lbl">Symptom weight range for medical realism</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}Results — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="result-page">
+
+  <!-- Page header -->
+  <div class="result-header">
+    <div class="result-header-left">
+      <div class="page-badge">🔬 Analysis Complete</div>
+      <h1>Prediction Results</h1>
+    </div>
+    <div class="model-strip">
+      <div class="ms-item">
+        <span class="ms-label">Model</span>
+        <span class="ms-val">{{ model_info.name }}</span>
+      </div>
+      <div class="ms-sep"></div>
+      <div class="ms-item">
+        <span class="ms-label">Accuracy</span>
+        <span class="ms-val ms-accent">{{ model_info.accuracy }}</span>
+      </div>
+      <div class="ms-sep"></div>
+      <div class="ms-item">
+        <span class="ms-label">Features</span>
+        <span class="ms-val">{{ model_info.features }}</span>
+      </div>
+      <div class="ms-sep"></div>
+      <div class="ms-item">
+        <span class="ms-label">Diseases</span>
+        <span class="ms-val">{{ model_info.diseases }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Symptoms used -->
+  <div class="symptoms-panel">
+    <div class="symptoms-panel-header">
+      <span class="sp-title">📋 Symptoms Entered</span>
+      {% if top3 %}
+      <span class="weight-badge">⚖️ Weight Score: <strong>{{ top3[0].weight_score }}</strong></span>
+      {% endif %}
+    </div>
+    <div class="symptoms-tags">
+      {% for s in selected_symptoms %}
+        <span class="sym-tag">{{ display_symptoms[s] }}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  {% if top3 and top3[0].weight_score < 4 %}
+  <div class="alert alert-warning">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>Low symptom specificity</strong>
+      <p>{{ top3[0].weight_note }} Try adding more specific symptoms for a stronger prediction.</p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if top3 and top3[0].severity == 'high' %}
+  <div class="alert alert-serious">
+    <span class="alert-icon">🔴</span>
+    <div>
+      <strong>Serious condition in results</strong>
+      <p>A serious condition appears because your symptoms match its specific profile. This is <strong>not a diagnosis</strong> — please seek immediate medical attention if you feel unwell.</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Predictions -->
+  <div class="predictions">
+    {% for pred in top3 %}
+    <div class="prediction-card {% if loop.first %}top-prediction{% endif %}">
+
+      <!-- Card header -->
+      <div class="pred-card-header">
+        <div class="pred-rank-badge rank-{{ loop.index }}">
+          {% if loop.first %}🥇 #1 Top Match
+          {% elif loop.index == 2 %}🥈 #2 Match
+          {% else %}🥉 #3 Match{% endif %}
+        </div>
+        <div class="pred-badges">
+          <span class="sev-badge {{ pred.severity_css }}">{{ pred.severity_emoji }} {{ pred.severity_label }}</span>
+          <span class="conf-badge {{ pred.conf_class }}">{{ pred.conf_label }} Confidence</span>
+        </div>
+      </div>
+
+      <!-- Disease name -->
+      <div class="pred-disease-row">
+        <h2 class="pred-disease-name">{{ pred.disease }}</h2>
+      </div>
+
+      <!-- Progress bars -->
+      <div class="pred-bars">
+        <div class="pred-bar-row">
+          <div class="pred-bar-meta">
+            <span class="pred-bar-label">🤖 Model Confidence</span>
+            <span class="pred-bar-pct {{ pred.conf_class }}">{{ pred.confidence }}%</span>
+          </div>
+          <div class="pred-bar-track">
+            <div class="pred-bar-fill {{ pred.conf_class }}-bar" style="width:0%" data-width="{{ pred.confidence }}"></div>
+          </div>
+        </div>
+        <div class="pred-bar-row">
+          <div class="pred-bar-meta">
+            <span class="pred-bar-label">🎯 Symptom Match</span>
+            <span class="pred-bar-pct match-pct">{{ pred.match_score }}% · {{ pred.match_label }}</span>
+          </div>
+          <div class="pred-bar-track">
+            <div class="pred-bar-fill match-bar" style="width:0%" data-width="{{ pred.match_score }}"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Explanation + Why -->
+      <div class="pred-info-grid">
+        <div class="pred-info-box">
+          <div class="pib-icon">
+            {% if pred.conf_class == 'conf-high' %}🟢{% elif pred.conf_class == 'conf-medium' %}🟡{% else %}🔴{% endif %}
+          </div>
+          <div>
+            <div class="pib-title">Confidence Explanation</div>
+            <div class="pib-text">{{ pred.conf_explain }}</div>
+          </div>
+        </div>
+        <div class="pred-info-box">
+          <div class="pib-icon">🧠</div>
+          <div>
+            <div class="pib-title">Why This Prediction?</div>
+            <div class="pib-text">{{ pred.why }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Precautions -->
+      <div class="pred-precautions">
+        <div class="prec-header">💊 Precautions &amp; Remedies</div>
+        <div class="prec-grid">
+          {% for p in pred.precautions %}
+          <div class="prec-item">
+            <span class="prec-dot"></span>
+            <span>{{ p }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Actions -->
+  <div class="result-actions">
+    <form method="POST" action="{{ url_for('report') }}" id="report-form" style="display:inline;">
+      {% for s in selected_symptoms %}
+        <input type="hidden" name="symptoms" value="{{ s }}"/>
+      {% endfor %}
+      <input type="hidden" name="top3_json" id="top3-json" value=""/>
+      <button type="submit" class="btn btn-outline" onclick="prepareReport()">
+        📄 Download Report
+      </button>
+    </form>
+    <a href="{{ url_for('predict') }}" class="btn btn-ghost">← Try Again</a>
+    <a href="{{ url_for('history') }}" class="btn btn-ghost">🕓 History</a>
+    <a href="{{ url_for('home') }}" class="btn btn-primary">🏠 Home</a>
+  </div>
+
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.pred-bar-fill').forEach(bar => {
+      const w = bar.dataset.width;
+      setTimeout(() => { bar.style.width = Math.min(w, 100) + '%'; }, 300);
+    });
+  });
+  function prepareReport() {
+    const top3 = {{ top3 | tojson }};
+    document.getElementById('top3-json').value = JSON.stringify(top3);
+  }
+</script>
+{% endblock %}

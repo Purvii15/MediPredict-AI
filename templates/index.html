@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Home - MediPredict AI{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-badge">&#x1F916; AI-Powered Health Analysis</div>
+    <h1 class="hero-title">Predict Diseases<br/><span class="hero-accent">From Your Symptoms</span></h1>
+    <p class="hero-sub">Select your symptoms and get instant AI-powered disease predictions with confidence scores, medical explanations, and actionable precautions.</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('predict') }}" class="btn btn-white btn-lg">Start Prediction &rarr;</a>
+      <a href="{{ url_for('analytics') }}" class="btn btn-glass btn-lg">View Analytics</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">&#x1F9EC;</div>
+        <div class="stat-number">{{ model_info.diseases }}</div>
+        <div class="stat-name">Diseases</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">&#x1F4CB;</div>
+        <div class="stat-number">{{ model_info.features }}</div>
+        <div class="stat-name">Symptoms</div>
+      </div>
+      <div class="stat-card stat-card-accent">
+        <div class="stat-icon">&#x1F3AF;</div>
+        <div class="stat-number">{{ model_info.accuracy }}</div>
+        <div class="stat-name">Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">&#x1F916;</div>
+        <div class="stat-number">3</div>
+        <div class="stat-name">ML Models</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how-section">
+  <div class="section-label">How It Works</div>
+  <h2 class="section-title">Three Simple Steps</h2>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-icon">&#x1F50D;</div>
+      <h3>Select Symptoms</h3>
+      <p>Choose from 132 symptoms. Smart suggestions help you find related ones.</p>
+    </div>
+    <div class="step-arrow">&rarr;</div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-icon">&#x1F916;</div>
+      <h3>AI Analysis</h3>
+      <p>Random Forest model analyses your symptoms using weighted feature vectors.</p>
+    </div>
+    <div class="step-arrow">&rarr;</div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-icon">&#x1F4CB;</div>
+      <h3>Get Results</h3>
+      <p>Top 3 predictions with confidence scores, severity tags, and precautions.</p>
+    </div>
+  </div>
+</section>
+
+<section class="features-section">
+  <div class="section-label">Features</div>
+  <h2 class="section-title">What Makes It Powerful</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="fc-icon-wrap fc-blue">&#x1F52C;</div>
+      <h3>3 ML Models</h3>
+      <p>Random Forest, Decision Tree and Naive Bayes trained on 4920 symptom records with class balancing.</p>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon-wrap fc-green">&#x1F4CA;</div>
+      <h3>Visual Analytics</h3>
+      <p>EDA plots, confusion matrix, feature importance, and accuracy comparison charts.</p>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon-wrap fc-purple">&#x1F9E0;</div>
+      <h3>Smart Suggestions</h3>
+      <p>As you select symptoms, the system suggests related ones you might have missed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon-wrap fc-orange">&#x2696;&#xFE0F;</div>
+      <h3>Weighted Symptoms</h3>
+      <p>Critical symptoms carry higher weight for medically realistic predictions.</p>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon-wrap fc-red">&#x1F6E1;&#xFE0F;</div>
+      <h3>Safety Gates</h3>
+      <p>Severe diseases only appear when strong, specific symptoms are present.</p>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon-wrap fc-teal">&#x1F4C4;</div>
+      <h3>Download Report</h3>
+      <p>Export your prediction results with symptoms, predictions, and precautions.</p>
+    </div>
+  </div>
+</section>
+
+<section class="preview-section">
+  <div class="section-label">Data Insights</div>
+  <h2 class="section-title">Explore the Data</h2>
+  <div class="preview-grid">
+    <div class="preview-card">
+      <div class="preview-label">Disease Distribution</div>
+      <img src="{{ url_for('static', filename='images/disease_distribution.png') }}" alt="Disease Distribution" loading="lazy"/>
+    </div>
+    <div class="preview-card">
+      <div class="preview-label">Top Symptoms</div>
+      <img src="{{ url_for('static', filename='images/symptom_frequency.png') }}" alt="Symptom Frequency" loading="lazy"/>
+    </div>
+    <div class="preview-card">
+      <div class="preview-label">Model Accuracy</div>
+      <img src="{{ url_for('static', filename='images/accuracy_comparison.png') }}" alt="Accuracy Comparison" loading="lazy"/>
+    </div>
+    <div class="preview-card">
+      <div class="preview-label">Disease Share</div>
+      <img src="{{ url_for('static', filename='images/disease_pie.png') }}" alt="Disease Pie" loading="lazy"/>
+    </div>
+  </div>
+  <div class="preview-cta">
+    <a href="{{ url_for('analytics') }}" class="btn btn-outline">View Full Analytics Dashboard &rarr;</a>
+  </div>
+</section>
+
+{% endblock %}

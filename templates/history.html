@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}History — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-badge">🕓 Session History</div>
+      <h1>Recent Predictions</h1>
+      <p class="page-sub">Your last 10 predictions from this session are saved here.</p>
+    </div>
+    {% if history %}
+    <a href="{{ url_for('clear_history') }}" class="btn btn-ghost btn-sm">🗑 Clear History</a>
+    {% endif %}
+  </div>
+
+  {% if not history %}
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>No predictions yet</h3>
+      <p>Make your first prediction to see results here.</p>
+      <a href="{{ url_for('predict') }}" class="btn btn-primary" style="margin-top:1rem;">Start Prediction →</a>
+    </div>
+  {% else %}
+    <div class="history-list">
+      {% for entry in history %}
+      <div class="history-card">
+        <div class="hc-left">
+          <div class="hc-index">{{ loop.index }}</div>
+        </div>
+        <div class="hc-body">
+          <div class="hc-header">
+            <span class="hc-disease">🦠 {{ entry.disease }}</span>
+            <span class="hc-conf conf-badge {{ 'conf-high' if entry.confidence >= 40 else ('conf-medium' if entry.confidence >= 15 else 'conf-low') }}">
+              {{ entry.confidence }}%
+            </span>
+          </div>
+          <div class="hc-symptoms">
+            {% for s in entry.symptoms %}
+              <span class="sym-tag sym-tag-sm">{{ s }}</span>
+            {% endfor %}
+            {% if entry.symptoms|length == 5 %}<span class="sym-tag sym-tag-sm sym-tag-muted">…more</span>{% endif %}
+          </div>
+        </div>
+        <div class="hc-right">
+          <span class="hc-time">🕐 {{ entry.time }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="page-footer-actions">
+    <a href="{{ url_for('predict') }}" class="btn btn-primary">New Prediction →</a>
+    <a href="{{ url_for('home') }}" class="btn btn-ghost">← Home</a>
+  </div>
+
+</div>
+{% endblock %}

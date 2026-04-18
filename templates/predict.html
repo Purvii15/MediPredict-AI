@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Predict — MediPredict AI{% endblock %}
+
+{% block content %}
+<div class="predict-page">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-badge">🔍 Symptom Analysis</div>
+      <h1>Select Your Symptoms</h1>
+      <p class="page-sub">Check all symptoms you are currently experiencing. Smart suggestions will appear as you select.</p>
+    </div>
+    <div class="predict-tips">
+      <div class="tip-item"><span class="tip-dot tip-green"></span> Select at least 2–3 symptoms for best results</div>
+      <div class="tip-item"><span class="tip-dot tip-blue"></span> More specific symptoms = higher confidence</div>
+      <div class="tip-item"><span class="tip-dot tip-orange"></span> Use search to find symptoms quickly</div>
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-error">
+      <span class="alert-icon">⚠️</span>
+      <span>{{ error }}</span>
+    </div>
+  {% endif %}
+
+  <!-- Suggestion box -->
+  <div id="suggestion-box" class="suggestion-box" style="display:none;">
+    <div class="suggestion-header">
+      <span class="suggestion-icon">💡</span>
+      <strong>Do you also have these symptoms?</strong>
+    </div>
+    <div id="suggestion-chips"></div>
+  </div>
+
+  <form method="POST" action="{{ url_for('predict') }}" id="symptom-form">
+
+    <!-- Search + counter bar -->
+    <div class="search-row">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="symptom-search" class="search-input"
+               placeholder="Search symptoms…"
+               oninput="filterSymptoms(this.value)" autocomplete="off"/>
+        <button type="button" class="search-clear" onclick="clearSearch()" id="clear-search" style="display:none;">✕</button>
+      </div>
+      <div class="selected-pill">
+        <span id="count">0</span> selected
+      </div>
+    </div>
+
+    <!-- Symptom grid -->
+    <div class="symptom-grid" id="symptom-grid">
+      {% for sym in symptoms %}
+      <label class="symptom-label" data-name="{{ display_symptoms[sym]|lower }}" data-key="{{ sym }}">
+        <input type="checkbox" name="symptoms" value="{{ sym }}" onchange="onSymptomChange()"/>
+        <span class="sym-check"></span>
+        <span class="sym-text">{{ display_symptoms[sym] }}</span>
+      </label>
+      {% endfor %}
+    </div>
+
+    <div class="no-results" id="no-results" style="display:none;">
+      No symptoms match your search.
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" onclick="clearAll()">✕ Clear All</button>
+      <button type="submit" class="btn btn-primary btn-lg">
+        <span>Analyse Symptoms</span> <span class="btn-arrow">→</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  let suggestTimeout = null;
+
+  function updateCount() {
+    const checked = document.querySelectorAll('input[name="symptoms"]:checked').length;
+    document.getElementById('count').textContent = checked;
+  }
+
+  function filterSymptoms(query) {
+    const q = query.toLowerCase().trim();
+    let visible = 0;
+    document.querySelectorAll('.symptom-label').forEach(label => {
+      const show = label.dataset.name.includes(q);
+      label.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+    document.getElementById('clear-search').style.display = q ? 'block' : 'none';
+  }
+
+  function clearSearch() {
+    document.getElementById('symptom-search').value = '';
+    filterSymptoms('');
+  }
+
+  function clearAll() {
+    document.querySelectorAll('input[name="symptoms"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.symptom-label').forEach(l => l.classList.remove('checked'));
+    updateCount();
+    document.getElementById('suggestion-box').style.display = 'none';
+  }
+
+  function onSymptomChange() {
+    updateCount();
+    // Highlight checked labels
+    document.querySelectorAll('.symptom-label').forEach(label => {
+      const cb = label.querySelector('input');
+      label.classList.toggle('checked', cb.checked);
+    });
+    clearTimeout(suggestTimeout);
+    suggestTimeout = setTimeout(fetchSuggestions, 400);
+  }
+
+  function fetchSuggestions() {
+    const selected = Array.from(
+      document.querySelectorAll('input[name="symptoms"]:checked')
+    ).map(cb => cb.value);
+
+    if (selected.length === 0) {
+      document.getElementById('suggestion-box').style.display = 'none';
+      return;
+    }
+
+    fetch('/api/suggest', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({symptoms: selected})
+    })
+    .then(r => r.json())
+    .then(data => {
+      const chips = document.getElementById('suggestion-chips');
+      chips.innerHTML = '';
+      if (!data.suggestions || data.suggestions.length === 0) {
+        document.getElementById('suggestion-box').style.display = 'none';
+        return;
+      }
+      data.suggestions.forEach(s => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'suggestion-chip';
+        chip.innerHTML = '<span>+</span> ' + s.label;
+        chip.onclick = () => {
+          const cb = document.querySelector(`input[value="${s.key}"]`);
+          if (cb) { cb.checked = true; onSymptomChange(); }
+          chip.remove();
+        };
+        chips.appendChild(chip);
+      });
+      document.getElementById('suggestion-box').style.display = 'block';
+    });
+  }
+</script>
+{% endblock %}
